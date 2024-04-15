@@ -29,4 +29,24 @@ Conferir se este usuário foi cadastrado corretamente
     Dictionary Should Contain Item    ${RESPOSTA}    message    Cadastro realizado com sucesso
     Dictionary Should Contain Key     ${RESPOSTA}    _id
 
+Consultar os dados do usuário
+    ${resposta_consulta}    GET On Session    alias=APIServerRest    url=/usuarios/${ID_USUARIO}    expected_status=200
+    Set Test Variable       ${RESPOSTA_CONSULTA}                     ${resposta_consulta.json()}    
+
+Conferir os dadso retornados do novo usuário
+    Log    ${RESPOSTA_CONSULTA}
+    Dictionary Should Contain Item    ${RESPOSTA_CONSULTA}    nome             Fulano da Silva
+    Dictionary Should Contain Item    ${RESPOSTA_CONSULTA}    email            ${EMAIL_TEST}
+    Dictionary Should Contain Item    ${RESPOSTA_CONSULTA}    password         teste
+    Dictionary Should Contain Item    ${RESPOSTA_CONSULTA}    administrador    true
+    Dictionary Should Contain Item    ${RESPOSTA_CONSULTA}    _id              ${ID_USUARIO}
     
+Alterar perfil de acesso administrador de true para false
+    ${alterar_perfil_usuario}    PUT On Session    alias=APIServerRest    url=/usuarios/${ID_USUARIO}    expected_status=200    data={"nome":"Fulano da Silva", "email":"${EMAIL_TEST}", "password":"teste", "administrador":"false"}
+
+Excluir usuário criado
+    ${excluir_usuario}    DELETE On Session    alias=APIServerRest    url=/usuarios/${ID_USUARIO}    expected_status=200
+    Set Test Variable    ${RESPOSTA_CONSULTA_APOS_EXCLUSAO}    ${excluir_usuario.json()}
+
+Conferir se o usuário foi excluído corretamente
+    Log    ${RESPOSTA_CONSULTA_APOS_EXCLUSAO}
